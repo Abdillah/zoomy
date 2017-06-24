@@ -65,7 +65,7 @@ fn main() {
         }
     }).collect();
 
-    let mut available_modes: Vec<mode::Mode> = Vec::new();
+    let mut available_modes: Vec<mode::Modeset> = Vec::new();
     for (i, _) in connectors.iter().enumerate() {
         let height = modes[i].get_vdisplay();
         let width  = modes[i].get_hdisplay();
@@ -73,7 +73,7 @@ fn main() {
         // Creating framebuffer
         let mut buf = buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
 
-        available_modes.push(mode::Mode {
+        available_modes.push(mode::Modeset {
             conn: &connectors[i],
             mode: &modes[i],
             crtc: &crtcs[i].as_ref().unwrap(),
