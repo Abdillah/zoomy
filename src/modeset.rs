@@ -1,7 +1,7 @@
 extern crate std;
 
 use drm::drm_mode::{ModeInfo, Connector, Crtc};
-use ::drm_buffer::DrmDoubleBuffer;
+use drm_buffer::DrmDoubleBuffer;
 
 pub struct Modeset<'a> {
     pub width: u16,
