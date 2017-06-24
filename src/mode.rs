@@ -14,11 +14,12 @@ pub struct Modeset<'a> {
 }
 
 impl<'a> Modeset<'a> {
-    pub fn new(conn: &'a Connector, mode: &'a ModeInfo, crtc: &'a Crtc) -> Self {
+    pub fn new(conn: &'a Connector, mode: &'a ModeInfo, crtc: &'a Crtc, buffer: buffer::DrmBuffer) -> Self {
         Self {
             conn: conn,
             mode: mode,
             crtc: crtc,
+            buffer: buffer,
             height: 0,
             width: 0,
         }
