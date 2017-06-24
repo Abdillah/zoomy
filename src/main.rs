@@ -68,39 +68,48 @@ fn main() {
         let height = modes[i].get_vdisplay();
         let width  = modes[i].get_hdisplay();
 
-        let buffer = ::drm_buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
+        let b1 = ::drm_buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
+        let b2 = ::drm_buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
+        let dblbuffers = ::drm_buffer::DrmDoubleBuffer::new(b1, b2);
         modeset = modeset::Modeset::new(&connectors[i], &modes[i], &crtcs[i].as_ref().unwrap(),
-            buffer, height, width);
+            dblbuffers, height, width);
         available_modes.push(modeset)
     }
 
     let ref mut active_mode = available_modes[0];
 
-    // Set CRTC
-    drm::drm_mode::set_crtc(
-        file.as_raw_fd(),
-        active_mode.crtc.get_crtc_id(),
-        active_mode.buffer.id,
-        0,
-        0,
-        &[active_mode.conn.get_connector_id()],
-        active_mode.mode
-    ).expect("Failed SET_CRTC");
-
     // Draw
     for _ in 0..50 {
-        for j in 0..active_mode.buffer.height {
-            for k in 0..active_mode.buffer.width {
-                let r: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
-                let g: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
-                let b: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
+        {
+            let buffer = active_mode.dblbuffer.get_back_buffer_mut();
 
-                let color: u32 = ((r as u32) << 16) | ((g as u32) << 8) | b as u32;
-                // println!("R {} + G {} + B {} = Color {}", r, g, b, color);
+            for j in 0..buffer.height {
+                for k in 0..buffer.width {
+                    let r: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
+                    let g: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
+                    let b: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
 
-                let offset = active_mode.buffer.stride * j as u32 + (k as u32 * 4 as u32);
-                active_mode.buffer.write(offset, color);
+                    let color: u32 = ((r as u32) << 16) | ((g as u32) << 8) | b as u32;
+                    // println!("R {} + G {} + B {} = Color {}", r, g, b, color);
+
+                    let offset = buffer.stride * j as u32 + (k as u32 * 4 as u32);
+                    buffer.write(offset, color);
+                }
             }
+
+            // Set CRTC
+            drm::drm_mode::set_crtc(
+                file.as_raw_fd(),
+                active_mode.crtc.get_crtc_id(),
+                buffer.id,
+                0,
+                0,
+                &[active_mode.conn.get_connector_id()],
+                active_mode.mode
+            ).expect("Failed SET_CRTC");
         }
+
+        // Switch
+        active_mode.dblbuffer.switch();
     }
 }

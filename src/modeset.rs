@@ -1,7 +1,7 @@
 extern crate std;
 
 use drm::drm_mode::{ModeInfo, Connector, Crtc};
-use ::drm_buffer::DrmBuffer;
+use ::drm_buffer::DrmDoubleBuffer;
 
 pub struct Modeset<'a> {
     pub width: u16,
@@ -11,17 +11,17 @@ pub struct Modeset<'a> {
     pub conn: &'a Connector,
     pub crtc: &'a Crtc,
 
-    pub buffer: DrmBuffer
+    pub dblbuffer: DrmDoubleBuffer
 }
 
 impl<'a> Modeset<'a> {
     pub fn new(conn: &'a Connector, mode: &'a ModeInfo, crtc: &'a Crtc,
-        buffer: DrmBuffer, width: u16, height: u16) -> Self {
+        dblbuffer: DrmDoubleBuffer, width: u16, height: u16) -> Self {
         Self {
             conn: conn,
             mode: mode,
             crtc: crtc,
-            buffer: buffer,
+            dblbuffer: dblbuffer,
             height: height,
             width: width,
         }
