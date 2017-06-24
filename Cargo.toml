@@ -1,0 +1,9 @@
+[package]
+name = "zoomy"
+version = "0.1.0"
+authors = ["Hernawan Fa'iz Abdillah <hernawan.faiz@abdillah.me>"]
+
+[dependencies]
+libc = "0.2.23"
+drm-rs = "0.1.3"
+mmap = "0.1.1"
