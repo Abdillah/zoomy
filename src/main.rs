@@ -62,12 +62,14 @@ fn main() {
         }
     }).collect();
 
+    // Collect available connected modeset
     let mut modeset;
     let mut available_modes: Vec<modeset::Modeset> = Vec::new();
     for (i, _) in connectors.iter().enumerate() {
         let height = modes[i].get_vdisplay();
         let width  = modes[i].get_hdisplay();
 
+        // Create double buffers
         let b1 = ::drm_buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
         let b2 = ::drm_buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
         let dblbuffers = ::drm_buffer::DrmDoubleBuffer::new(b1, b2);
@@ -78,11 +80,11 @@ fn main() {
 
     let ref mut active_mode = available_modes[0];
 
-    // Draw
     for _ in 0..50 {
         {
             let buffer = active_mode.dblbuffer.get_back_buffer_mut();
 
+            // Draw the pixel into back buffer
             for j in 0..buffer.height {
                 for k in 0..buffer.width {
                     let r: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
@@ -97,7 +99,7 @@ fn main() {
                 }
             }
 
-            // Set CRTC
+            // Set CRTC on written back buffer
             drm::drm_mode::set_crtc(
                 file.as_raw_fd(),
                 active_mode.crtc.get_crtc_id(),
@@ -109,7 +111,7 @@ fn main() {
             ).expect("Failed SET_CRTC");
         }
 
-        // Switch
+        // Switch front and back buffer
         active_mode.dblbuffer.switch();
     }
 }
