@@ -2,7 +2,7 @@ extern crate libc;
 extern crate drm;
 extern crate mmap;
 
-mod mode;
+mod modeset;
 mod buffer;
 
 use std::fs::OpenOptions;
@@ -63,13 +63,13 @@ fn main() {
     }).collect();
 
     let mut modeset;
-    let mut available_modes: Vec<mode::Modeset> = Vec::new();
+    let mut available_modes: Vec<modeset::Modeset> = Vec::new();
     for (i, _) in connectors.iter().enumerate() {
         let height = modes[i].get_vdisplay();
         let width  = modes[i].get_hdisplay();
 
         let buffer = ::buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
-        modeset = mode::Modeset::new(&connectors[i], &modes[i], &crtcs[i].as_ref().unwrap(),
+        modeset = modeset::Modeset::new(&connectors[i], &modes[i], &crtcs[i].as_ref().unwrap(),
             buffer, height, width);
         available_modes.push(modeset)
     }
