@@ -3,7 +3,7 @@ extern crate drm;
 extern crate mmap;
 
 mod modeset;
-mod buffer;
+mod drm_buffer;
 
 use std::fs::OpenOptions;
 use drm::drm_mode::Connection;
@@ -68,7 +68,7 @@ fn main() {
         let height = modes[i].get_vdisplay();
         let width  = modes[i].get_hdisplay();
 
-        let buffer = ::buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
+        let buffer = ::drm_buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
         modeset = modeset::Modeset::new(&connectors[i], &modes[i], &crtcs[i].as_ref().unwrap(),
             buffer, height, width);
         available_modes.push(modeset)
