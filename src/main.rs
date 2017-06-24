@@ -70,6 +70,9 @@ fn main() {
         let height = modes[i].get_vdisplay();
         let width  = modes[i].get_hdisplay();
 
+        // Creating framebuffer
+        let mut buf = buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
+
         available_modes.push(mode::Mode {
             conn: &connectors[i],
             mode: &modes[i],
@@ -77,12 +80,9 @@ fn main() {
 
             height: height,
             width: width,
+            buffer: buf,
         })
     }
-
-    // Creating framebuffer
-    let ref active_mode = available_modes[0];
-    let mut buf = buffer::DrmBuffer::new(file.as_raw_fd(), active_mode.width, active_mode.height);
 
     // Set CRTC
     drm::drm_mode::set_crtc(
