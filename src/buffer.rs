@@ -9,12 +9,12 @@ use drm::ffi::drm_mode as ffi;
 const DRM_IOCTL_MODE_CREATE_DUMB: u64 = 0b11000000001000000110010010110010;
 const DRM_IOCTL_MODE_MAP_DUMB: u64    = 0b11000000000100000110010010110011;
 
-pub struct DoubleBuffer {
+pub struct DrmDoubleBuffer {
     active: usize,
     pair: Vec<DrmBuffer>,
 }
 
-impl DoubleBuffer {
+impl DrmDoubleBuffer {
     pub fn new(b1: DrmBuffer, b2: DrmBuffer) -> Self {
         Self {
             active: 0,
