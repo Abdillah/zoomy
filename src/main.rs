@@ -6,7 +6,7 @@ mod mode;
 mod buffer;
 
 use std::fs::OpenOptions;
-use self::drm::drm_mode::Connection;
+use drm::drm_mode::Connection;
 use std::os::unix::io::AsRawFd;
 
 fn main() {
