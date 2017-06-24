@@ -65,40 +65,35 @@ fn main() {
         }
     }).collect();
 
+    let mut modeset;
     let mut available_modes: Vec<mode::Modeset> = Vec::new();
     for (i, _) in connectors.iter().enumerate() {
         let height = modes[i].get_vdisplay();
         let width  = modes[i].get_hdisplay();
 
-        // Creating framebuffer
-        let mut buf = buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
-
-        available_modes.push(mode::Modeset {
-            conn: &connectors[i],
-            mode: &modes[i],
-            crtc: &crtcs[i].as_ref().unwrap(),
-
-            height: height,
-            width: width,
-            buffer: buf,
-        })
+        let buffer = ::buffer::DrmBuffer::new(file.as_raw_fd(), width, height);
+        modeset = mode::Modeset::new(&connectors[i], &modes[i], &crtcs[i].as_ref().unwrap(),
+            buffer, height, width);
+        available_modes.push(modeset)
     }
+
+    let ref mut active_mode = available_modes[0];
 
     // Set CRTC
     drm::drm_mode::set_crtc(
         file.as_raw_fd(),
-        available_modes[0].crtc.get_crtc_id(),
-        buf.id,
+        active_mode.crtc.get_crtc_id(),
+        active_mode.buffer.id,
         0,
         0,
-        &[available_modes[0].conn.get_connector_id()],
-        available_modes[0].mode
+        &[active_mode.conn.get_connector_id()],
+        active_mode.mode
     ).expect("Failed SET_CRTC");
 
     // Draw
     for _ in 0..50 {
-        for j in 0..buf.height {
-            for k in 0..buf.width {
+        for j in 0..active_mode.buffer.height {
+            for k in 0..active_mode.buffer.width {
                 let r: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
                 let g: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
                 let b: u8 = unsafe { (libc::rand() as u8 % 0xff).wrapping_add((libc::rand() as u8).wrapping_mul(10)) };
@@ -106,8 +101,8 @@ fn main() {
                 let color: u32 = ((r as u32) << 16) | ((g as u32) << 8) | b as u32;
                 // println!("R {} + G {} + B {} = Color {}", r, g, b, color);
 
-                let offset = buf.stride * j as u32 + (k as u32 * 4 as u32);
-                buf.write(offset, color);
+                let offset = active_mode.buffer.stride * j as u32 + (k as u32 * 4 as u32);
+                active_mode.buffer.write(offset, color);
             }
         }
     }

@@ -10,18 +10,19 @@ pub struct Modeset<'a> {
     pub conn: &'a Connector,
     pub crtc: &'a Crtc,
 
-    pub buffer: &'a buffer::DrmBuffer
+    pub buffer: ::buffer::DrmBuffer
 }
 
 impl<'a> Modeset<'a> {
-    pub fn new(conn: &'a Connector, mode: &'a ModeInfo, crtc: &'a Crtc, buffer: buffer::DrmBuffer) -> Self {
+    pub fn new(conn: &'a Connector, mode: &'a ModeInfo, crtc: &'a Crtc,
+        buffer: ::buffer::DrmBuffer, width: u16, height: u16) -> Self {
         Self {
             conn: conn,
             mode: mode,
             crtc: crtc,
             buffer: buffer,
-            height: 0,
-            width: 0,
+            height: height,
+            width: width,
         }
     }
 }
