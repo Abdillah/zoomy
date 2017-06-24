@@ -18,3 +18,10 @@ $ ./target/debug/zoomy
 > If you run XServer, it will block `zoomy` to gain access as
 > DRM master. Thus, the app will error with `EACCESS`
 > –permission denied. Instead, run in unused tty.
+
+## License and Attribution
+Licensed under `General Public License version 3.0`.
+
+Hardly learned and based on,
+1. DRM/KMS tutorial https://github.com/dvdhrm/docs
+2. Dive in the Linux kernel code
