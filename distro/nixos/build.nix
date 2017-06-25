@@ -8,9 +8,11 @@ let
     name = "zoomy-${version}";
     version = "0.0.1";
 
-    src = fetchurl {
-      url = "file:///home/fazbdillah/opengles/Zoomy/zoomy.tar.gz";
-      sha256 = "14iig925j5xqn6hjr90m4dxrz7pfrhypxm8m726yh8xqa4ypcbmd";
+    src = fetchFromGitHub {
+      owner = "Abdillah";
+      repo = "zoomy";
+      rev = "505c2bb77824b492464f8649bcf8478d785b0370";
+      sha256 = "1gkcmfvdivpgpzr261i3473rwrb89jjg0p49glgrq923bbddnlb5";
     };
 
     nativeBuildInputs = [ pkgconfig rustc cargo ];
